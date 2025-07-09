@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InsightCit - Análise de Posts</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter (para o corpo do texto) e Chicle (para o título) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Chicle&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Custom scrollbar for a more integrated look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111827; /* bg-gray-900 */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563; /* bg-gray-600 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280; /* bg-gray-500 */
+        }
+        /* Ensure the body and html take full height */
+        html, body {
+            height: 100%;
+        }
+        /* Aplica a fonte Chicle ao título */
+        .groovy-title {
+            font-family: 'Chicle', cursive;
+        }
+    </style>
+</head>
+<body class="bg-black text-gray-200 font-['Inter',_sans-serif] flex flex-col h-screen">
+
+    <!-- Header -->
+    <header class="flex items-center justify-center p-4 border-b border-gray-800 shadow-lg bg-gray-900/50 backdrop-blur-sm">
+        <h1 class="text-2xl font-bold tracking-wider groovy-title">
+            Insight<span class="text-pink-500">Cit</span>
+        </h1>
+    </header>
+
+    <!-- Chat Container -->
+    <main id="chat-container" class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6">
+        <!-- Initial AI Message -->
+        <div class="flex">
+            <div class="max-w-2xl bg-gray-800 rounded-lg rounded-bl-none p-4">
+                <p class="font-semibold text-pink-400 mb-2">InsightCit</p>
+                <p>Olá, Manu! 👋 Que bom ter você por aqui!</p>
+                <p class="mt-2">Estou super animada para analisar a sua próxima ideia de post! ✨ Descreva o conteúdo com todos os detalhes (pode incluir sobre imagens ou vídeos), e eu te darei um feedback completo e cheio de dicas!</p>
+                <p class="mt-2 text-sm text-gray-400">Vamos criar algo incrível juntos! 😉</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Input Form -->
+    <footer class="p-4 bg-black border-t border-gray-800">
+        <form id="chat-form" class="max-w-4xl mx-auto flex items-start space-x-3">
+            <textarea 
+                id="message-input"
+                placeholder="Descreva sua ideia de post aqui..." 
+                class="flex-1 bg-gray-800 border border-gray-700 rounded-xl p-3 focus:ring-2 focus:ring-pink-500 focus:outline-none resize-none transition-all duration-200"
+                rows="1"
+            ></textarea>
+            <button type="submit" class="bg-pink-600 hover:bg-pink-700 transition-colors text-white font-semibold rounded-xl p-3 self-end flex items-center justify-center h-[46px] w-[46px]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-horizontal"><path d="m3 3 3 9-3 9 19-9Z"/><path d="M6 12h16"/></svg>
+            </button>
+        </form>
+    </footer>
+
+    <script>
+        // --- Referências de Elementos DOM ---
+        const chatForm = document.getElementById('chat-form');
+        const messageInput = document.getElementById('message-input');
+        const chatContainer = document.getElementById('chat-container');
+
+        // --- Listeners de Eventos ---
+        
+        // Lida com o envio do formulário
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleUserMessage();
+        });
+
+        // Lida com a tecla 'Enter' para envio (mas permite 'Shift+Enter' para novas linhas)
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleUserMessage();
+            }
+        });
+        
+        // Redimensiona automaticamente a textarea
+        messageInput.addEventListener('input', () => {
+            messageInput.style.height = 'auto';
+            messageInput.style.height = (messageInput.scrollHeight) + 'px';
+        });
+
+        // --- Funções Principais ---
+
+        /**
+         * Processa a mensagem do usuário, exibe-a e aciona a resposta da IA.
+         */
+        function handleUserMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Exibe a mensagem do usuário
+            appendMessage(message, 'user');
+
+            // Limpa o input e redefine sua altura
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+
+            // Mostra um indicador de digitação e simula a resposta da IA
+            showTypingIndicator();
+            setTimeout(() => {
+                removeTypingIndicator();
+                generateAiResponse();
+            }, 2000); // Simula 2 segundos de "pensamento"
+        }
+
+        /**
+         * Adiciona uma mensagem ao contêiner de chat.
+         * @param {string} text - O conteúdo da mensagem.
+         * @param {'user' | 'ai'} sender - O remetente da mensagem.
+         * @param {boolean} isHtml - Se o texto contém HTML.
+         */
+        function appendMessage(text, sender, isHtml = false) {
+            let messageBubble;
+            if (sender === 'user') {
+                messageBubble = `
+                    <div class="flex justify-end">
+                        <div class="max-w-xl bg-pink-600 text-white rounded-lg rounded-br-none p-4">
+                            <p>${text}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                messageBubble = `
+                    <div class="flex" id="${isHtml ? 'ai-response' : 'typing-indicator'}">
+                        <div class="max-w-2xl bg-gray-800 rounded-lg rounded-bl-none p-4">
+                            ${isHtml ? text : `<p class="font-semibold text-pink-400 mb-2">InsightCit</p>${text}`}
+                        </div>
+                    </div>
+                `;
+            }
+            chatContainer.insertAdjacentHTML('beforeend', messageBubble);
+            scrollToBottom();
+        }
+        
+        /**
+         * Exibe uma animação simples de "digitando...".
+         */
+        function showTypingIndicator() {
+            const indicatorHtml = `
+                <div class="flex items-center space-x-1">
+                    <div class="w-2 h-2 bg-pink-400 rounded-full animate-pulse" style="animation-delay: 0s;"></div>
+                    <div class="w-2 h-2 bg-pink-400 rounded-full animate-pulse" style="animation-delay: 0.2s;"></div>
+                    <div class="w-2 h-2 bg-pink-400 rounded-full animate-pulse" style="animation-delay: 0.4s;"></div>
+                </div>
+            `;
+            appendMessage(indicatorHtml, 'ai');
+        }
+
+        /**
+         * Remove o indicador de digitação do chat.
+         */
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        /**
+         * Gera e exibe uma resposta simulada e estruturada da IA.
+         */
+        function generateAiResponse() {
+            const aiResponseHtml = `
+                <p class="font-semibold text-pink-400 mb-3">InsightCit</p>
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="font-semibold text-lg text-white mb-2">✅ Pontos Positivos</h3>
+                        <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <li>O tema é relevante para o seu público-alvo atual.</li>
+                            <li>A chamada para ação (CTA) é clara e direta.</li>
+                            <li>O uso de um vídeo curto tem alto potencial de retenção.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-lg text-white mb-2">❌ Pontos a Melhorar</h3>
+                        <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <li>A legenda poderia ser mais pessoal para gerar mais conexão.</li>
+                            <li>A primeira frase poderia ser mais impactante para prender a atenção.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-lg text-white mb-2">💡 Sugestões</h3>
+                        <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <li>Tente começar com uma pergunta que seu público se identifique.</li>
+                            <li>Adicione 1-2 hashtags de nicho para aumentar o alcance.</li>
+                            <li>Considere adicionar legendas (closed captions) no vídeo para acessibilidade.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-700/50 p-3 rounded-lg">
+                        <h3 class="font-semibold text-lg text-white mb-2">📊 Nível de Engajamento Previsto</h3>
+                        <div class="w-full bg-gray-600 rounded-full h-2.5">
+                            <div class="bg-gradient-to-r from-pink-500 to-purple-500 h-2.5 rounded-full" style="width: 85%"></div>
+                        </div>
+                        <p class="text-right text-sm mt-1 font-bold">8.5 / 10</p>
+                    </div>
+                     <div class="border-t border-gray-700 pt-4">
+                        <h3 class="font-semibold text-lg text-white mb-2">🚀 Análise de Marketing</h3>
+                        <p class="text-gray-300"><strong class="text-gray-100">Potencial de Vendas:</strong> Alto. O post aborda uma "dor" do cliente e apresenta a solução de forma sutil, o que pode aquecer o lead para uma futura oferta.</p>
+                        <p class="text-gray-300 mt-2"><strong class="text-gray-100">Jargões Sugeridos:</strong> "destrave seu potencial", "jornada de transformação", "solução definitiva".</p>
+                        <p class="text-gray-300 mt-2"><strong class="text-gray-100">Saturação do Tópico:</strong> Média. O assunto é popular, mas sua abordagem única pode se destacar. Foque na sua autenticidade.</p>
+                    </div>
+                </div>
+            `;
+            appendMessage(aiResponseHtml, 'ai', true);
+        }
+
+        /**
+         * Rola o contêiner de chat para a última mensagem.
+         */
+        function scrollToBottom() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // Animação de saudação inicial
+        setTimeout(scrollToBottom, 100);
+    </script>
+</body>
+</html>
